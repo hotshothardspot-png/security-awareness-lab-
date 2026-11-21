@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Security Awareness Lab</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #f4f4f5;
+      font-family: Arial, sans-serif;
+      display: grid;
+      min-height: 100vh;
+      place-items: center;
+    }
+
+    main {
+      background: white;
+      width: min(90%, 390px);
+      padding: 30px;
+      border-radius: 14px;
+      box-shadow: 0 4px 20px #00000012;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    p {
+      color: #666;
+      text-align: center;
+    }
+
+    label {
+      display: block;
+      margin-top: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      margin-top: 8px;
+      border: 1px solid #ccc;
+      border-radius: 7px;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 24px;
+      background: #222;
+      color: white;
+      border: 0;
+      border-radius: 7px;
+      font-size: 16px;
+    }
+
+    #result {
+      display: none;
+      padding: 12px;
+      background: #e8f5e9;
+      margin-top: 18px;
+      border-radius: 7px;
+      color: #205b29;
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <h1>Security Awareness Lab</h1>
+
+    <p>Authorised authentication security exercise</p>
+
+    <form id="assessment">
+
+      <label for="participant">
+        Participant code
+      </label>
+
+      <input
+        id="participant"
+        required
+        maxlength="40"
+        placeholder="Enter your test code"
+      >
+
+      <label for="dummy">
+        Dummy password field
+      </label>
+
+      <input
+        id="dummy"
+        type="password"
+        autocomplete="off"
+        placeholder="Use dummy text only"
+      >
+
+      <button type="submit">
+        Submit test
+      </button>
+
+    </form>
+
+    <div id="result" role="status">
+      Assessment completed.
+      No password was transmitted or stored.
+    </div>
+  </main>
+
+  <script>
+    document
+      .getElementById("assessment")
+      .addEventListener("submit", async (event) => {
+
+        event.preventDefault();
+
+        const participantCode =
+          document.getElementById("participant").value;
+
+        const passwordFieldCompleted =
+          document.getElementById("dummy").value.length > 0;
+
+        try {
+          const response = await fetch("/api/assessment", {
+            method: "POST",
+
+            headers: {
+              "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+              participantCode,
+              passwordFieldCompleted
+            })
+          });
+
+          if (!response.ok) {
+            throw new Error("Submission failed");
+          }
+
+          document.getElementById("result")
+            .style.display = "block";
+
+          event.target.reset();
+
+        } catch {
+          alert("Unable to submit. Please try again.");
+        }
+      });
+  </script>
+</body>
