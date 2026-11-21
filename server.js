@@ -1,42 +1,52 @@
 
 const express = require("express");
+const crypto = require("crypto");
+
 const app = express();
 
-app.use(express.json());
+app.use(express.json({ limit: "10kb" }));
 app.use(express.static("public"));
 
 const events = [];
+const adminToken = process.env.ADMIN_TOKEN;
 
 app.post("/api/assessment", (req, res) => {
-  const { username, passwordEntered, userAgent } = req.body;
+  const { participantCode, passwordFieldCompleted } = req.body;
 
-  if (!username || typeof passwordEntered !== "boolean") {
+  if (
+    typeof participantCode !== "string" ||
+    typeof passwordFieldCompleted !== "boolean"
+  ) {
     return res.status(400).json({
-      error: "Invalid assessment data"
+      error: "Invalid assessment event"
     });
   }
 
-  const event = {
-    username,
-    passwordEntered,
-    userAgent,
+  events.push({
+    id: crypto.randomUUID(),
+    participantCode: participantCode.slice(0, 40),
+    passwordFieldCompleted,
     timestamp: new Date().toISOString()
-  };
-
-  events.push(event);
-
-  res.json({
-    success: true,
-    message: "Assessment event recorded"
   });
+
+  res.json({ success: true });
 });
 
 app.get("/api/events", (req, res) => {
+  if (
+    !adminToken ||
+    req.headers.authorization !== `Bearer ${adminToken}`
+  ) {
+    return res.status(401).json({
+      error: "Unauthorised"
+    });
+  }
+
   res.json(events);
 });
 
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log(`Assessment server running on ${PORT}`);
+  console.log(`Assessment server running on port ${PORT}`);
 });
